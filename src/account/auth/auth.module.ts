@@ -5,6 +5,8 @@ import { TokenModel } from './models/token.model';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { UserModule } from '../user/user.module';
 import { UserModel } from '../user/models/user.model';
+import { AuthMailer } from './auth.mailer';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
 	imports: [
@@ -23,8 +25,9 @@ import { UserModel } from '../user/models/user.model';
 			},
 		]),
 		UserModule,
+		ConfigModule,
 	],
 	controllers: [AuthController],
-	providers: [AuthRepository],
+	providers: [AuthRepository, AuthMailer],
 })
 export class AuthModule {}
