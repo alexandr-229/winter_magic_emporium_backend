@@ -5,11 +5,17 @@ export class AuthEntity implements IUser {
 	email: string;
 	password: string;
 	name: string;
+	lastName: string;
+	phone: string;
+	level: number;
+	code: number;
 
-	constructor(user: IUser) {
+	constructor(user: Omit<IUser, 'level' | 'code'>) {
 		this.email = user.email;
 		this.password = user.password;
 		this.name = user.name;
+		this.lastName = user.lastName;
+		this.phone = user.phone;
 	}
 
 	async setPassword(password: string) {
@@ -21,5 +27,15 @@ export class AuthEntity implements IUser {
 	async comparePassword(password: string) {
 		const result = await compare(password, this.password);
 		return result;
+	}
+
+	setLevel() {
+		const level = Math.round(Math.random() * 50) + 50;
+		this.level = level;
+	}
+
+	setCode() {
+		const code = Math.round(Math.random() * 8999) + 1000;
+		this.code = code;
 	}
 }

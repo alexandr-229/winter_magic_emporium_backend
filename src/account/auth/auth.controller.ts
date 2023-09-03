@@ -11,13 +11,17 @@ import {
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ChnagePasswordDto } from './dto/chnage-password.dto';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
+	constructor(private readonly authService: AuthService) {}
+
 	@UsePipes(new ValidationPipe())
 	@Post('register')
 	async register(@Body() dto: RegisterDto) {
-		return dto;
+		const result = await this.authService.register(dto);
+		return result;
 	}
 
 	@UsePipes(new ValidationPipe())
