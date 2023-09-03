@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
-import { AuthEntity } from './auth.entity';
 import { AuthRepository } from './repositories/auth.repository';
 import { TokenModel } from './models/token.model';
 import { TypegooseModule } from 'nestjs-typegoose';
@@ -26,6 +25,6 @@ import { UserModel } from '../user/models/user.model';
 		UserModule,
 	],
 	controllers: [AuthController],
-	providers: [AuthEntity, AuthRepository],
+	providers: [AuthRepository],
 })
 export class AuthModule {}

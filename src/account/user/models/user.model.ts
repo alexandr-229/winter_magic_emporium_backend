@@ -21,4 +21,7 @@ export class UserModel {
 
 	@prop()
 	level: number;
+
+	@prop()
+	isActive: boolean;
 }

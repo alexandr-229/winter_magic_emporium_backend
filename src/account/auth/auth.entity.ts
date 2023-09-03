@@ -1,8 +1,6 @@
-import { Injectable } from '@nestjs/common';
 import { IUser } from './types/user.interface';
 import { genSalt, hash, compare } from 'bcryptjs';
 
-@Injectable()
 export class AuthEntity implements IUser {
 	email: string;
 	password: string;
