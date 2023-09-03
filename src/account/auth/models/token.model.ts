@@ -1,4 +1,3 @@
-import { Types } from 'mongoose';
 import { prop } from '@typegoose/typegoose';
 
 export class TokenModel {
@@ -6,5 +5,5 @@ export class TokenModel {
 	refreshToken: string;
 
 	@prop()
-	userId: Types.ObjectId;
+	userEmail: string;
 }
