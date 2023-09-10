@@ -5,6 +5,7 @@ import { AuthEntity } from './auth.entity';
 import { AuthMailer } from './auth.mailer';
 import { TokenRepository } from './repositories/token.repository';
 import { JwtService } from '@nestjs/jwt';
+import { IPayload } from './types/payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -26,14 +27,14 @@ export class AuthService {
 		user.setCode();
 		await user.setPassword(dto.password);
 
-		const payload = { email: user.email };
-		const refreshToken = await this.jwtService.signAsync(payload, { expiresIn: '30d' });
-
-		await this.tokenRepository.createToken(refreshToken, user.email);
-
 		await this.authMailer.sendCode(dto.email, user.code);
 
 		const { _id } = await this.userRepository.createUser(user);
+
+		const payload: IPayload = { email: user.email, id: _id.toString() };
+		const refreshToken = await this.jwtService.signAsync(payload, { expiresIn: '30d' });
+
+		await this.tokenRepository.createToken(refreshToken, user.email);
 
 		return { id: _id };
 	}
@@ -53,7 +54,29 @@ export class AuthService {
 
 		await this.userRepository.updateUserByEmail(email, { isActive: true });
 
-		const payload = { id: user.id, email };
+		const payload: IPayload = { id: user.id, email };
+		const accessToken = await this.jwtService.signAsync(payload, { expiresIn: '30m' });
+
+		const result = { accessToken, id: user.id };
+
+		return result;
+	}
+
+	async login(email: string, password: string) {
+		const user = await this.userRepository.getUserByEmail(email);
+		if (!user) {
+			throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+		}
+
+		const userEntity = new AuthEntity(user);
+
+		const passwordCorrect = await userEntity.comparePassword(password);
+
+		if (!passwordCorrect) {
+			throw new HttpException('Password incorrect', HttpStatus.UNAUTHORIZED);
+		}
+
+		const payload: IPayload = { id: user.id, email };
 		const accessToken = await this.jwtService.signAsync(payload, { expiresIn: '30m' });
 
 		const result = { accessToken, id: user.id };
