@@ -88,7 +88,7 @@ export class AuthService {
 			'30m',
 		);
 
-		const result = { accessToken, id: user.id };
+		const result = { accessToken, id: user._id.toString() };
 
 		return result;
 	}
@@ -120,7 +120,7 @@ export class AuthService {
 		const { refreshToken } = await this.rewriteRefreshToken(email, user._id.toString());
 
 		const result = {
-			response: { accessToken, id: user.id },
+			response: { accessToken, id: user._id.toString() },
 			refreshToken,
 		};
 
@@ -164,7 +164,7 @@ export class AuthService {
 
 		await this.userRepository.updateUserByEmail(email, userEntity);
 
-		const result = { id: user._id };
+		const result = { id: user._id.toString() };
 
 		return result;
 	}
@@ -213,7 +213,7 @@ export class AuthService {
 
 		const accessToken = await this.tokenService.generateToken(
 			user.email,
-			existUser._id.toString(),
+			result.response.id,
 			'30m',
 		);
 
