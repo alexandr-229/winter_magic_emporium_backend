@@ -5,6 +5,7 @@ import {
 	HttpCode,
 	Post,
 	Put,
+	Query,
 	Res,
 	UseGuards,
 	UsePipes,
@@ -19,10 +20,14 @@ import { Cookies } from 'src/decorators/cookie';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/decorators/user';
 import { IPayload } from './types/payload.interface';
+import { GoogleApiClient } from './google.api.client';
 
 @Controller('auth')
 export class AuthController {
-	constructor(private readonly authService: AuthService) {}
+	constructor(
+		private readonly authService: AuthService,
+		private readonly googleApiClient: GoogleApiClient,
+	) {}
 
 	@UsePipes(new ValidationPipe())
 	@Post('register')
@@ -82,5 +87,11 @@ export class AuthController {
 	}
 
 	@Get('oauth')
-	async googleAuth() {}
+	async googleAuth(@Query('code') code: string, @Res({ passthrough: true }) res: Response) {
+		const { access_token } = await this.googleApiClient.getAccessToken(code);
+		const googleUser = await this.googleApiClient.getGoogleUser(access_token);
+		const { refreshToken, response } = await this.authService.googleAuth(googleUser);
+		res.cookie('refreshToken', refreshToken);
+		return response;
+	}
 }

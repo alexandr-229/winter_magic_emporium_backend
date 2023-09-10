@@ -5,6 +5,8 @@ import { AuthEntity } from './auth.entity';
 import { AuthMailer } from './auth.mailer';
 import { TokenRepository } from './repositories/token.repository';
 import { TokenService } from './token.service';
+import { IGoogleUser } from './types/google.user.interface';
+import { IUser } from './types/user.interface';
 
 @Injectable()
 export class AuthService {
@@ -14,6 +16,30 @@ export class AuthService {
 		private readonly authMailer: AuthMailer,
 		private readonly tokenService: TokenService,
 	) {}
+
+	private async rewriteRefreshToken(email: string, userId: string) {
+		const refreshTokenData = await this.tokenRepository.getToken(email);
+		const result = { refreshToken: '' };
+
+		if (!refreshTokenData) {
+			const token = await this.tokenService.generateToken(email, userId, '30d');
+			await this.tokenRepository.createToken(token, email);
+			result.refreshToken = token;
+			return result;
+		}
+
+		const { refreshToken } = refreshTokenData.toJSON();
+		const tokenValid = await this.tokenService.validateToken(refreshToken);
+		result.refreshToken = refreshToken;
+
+		if (!tokenValid) {
+			const token = await this.tokenService.generateToken(email, userId, '30d');
+			await this.tokenRepository.updateToken(email, token);
+			result.refreshToken = token;
+		}
+
+		return result;
+	}
 
 	async register(dto: RegisterDto) {
 		const existUser = await this.userRepository.getUserByEmail(dto.email);
@@ -91,29 +117,12 @@ export class AuthService {
 			'30m',
 		);
 
+		const { refreshToken } = await this.rewriteRefreshToken(email, user._id.toString());
+
 		const result = {
 			response: { accessToken, id: user.id },
-			refreshToken: '',
+			refreshToken,
 		};
-
-		const refreshTokenData = await this.tokenRepository.getToken(email);
-
-		if (!refreshTokenData) {
-			const token = await this.tokenService.generateToken(email, user._id.toString(), '30d');
-			await this.tokenRepository.createToken(token, email);
-			result.refreshToken = token;
-			return result;
-		}
-
-		const { refreshToken } = refreshTokenData.toJSON();
-		const tokenValid = await this.tokenService.validateToken(refreshToken);
-		result.refreshToken = refreshToken;
-
-		if (!tokenValid) {
-			const token = await this.tokenService.generateToken(email, user._id.toString(), '30d');
-			await this.tokenRepository.updateToken(email, token);
-			result.refreshToken = token;
-		}
 
 		return result;
 	}
@@ -156,6 +165,59 @@ export class AuthService {
 		await this.userRepository.updateUserByEmail(email, userEntity);
 
 		const result = { id: user._id };
+
+		return result;
+	}
+
+	async googleAuth(user: IGoogleUser) {
+		const existUser = await this.userRepository.getUserByEmail(user.email);
+
+		const result = {
+			response: { accessToken: '', id: '' },
+			refreshToken: '',
+		};
+
+		if (existUser) {
+			const { refreshToken } = await this.rewriteRefreshToken(
+				user.email,
+				existUser._id.toString(),
+			);
+			result.refreshToken = refreshToken;
+			result.response.id = existUser._id.toString();
+		} else {
+			const defaultUser: Omit<IUser, 'level' | 'isActive'> = {
+				email: user.email,
+				password: '',
+				name: user.name,
+				lastName: '',
+				phone: '',
+				code: 0,
+			};
+
+			const userEntity = new AuthEntity(defaultUser);
+			userEntity.setLevel();
+
+			const { _id } = await this.userRepository.createUser(userEntity);
+
+			const refreshToken = await this.tokenService.generateToken(
+				user.email,
+				_id.toString(),
+				'30d',
+			);
+
+			await this.tokenRepository.createToken(refreshToken, user.email);
+
+			result.refreshToken = refreshToken;
+			result.response.id = _id.toString();
+		}
+
+		const accessToken = await this.tokenService.generateToken(
+			user.email,
+			existUser._id.toString(),
+			'30m',
+		);
+
+		result.response.accessToken = accessToken;
 
 		return result;
 	}

@@ -13,6 +13,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { getJwtConfig } from 'src/configs/jwt.config';
 import { TokenService } from './token.service';
 import { JwtAuthStrategy } from './strategies/jwt.strategy';
+import { GoogleApiClient } from './google.api.client';
 
 @Module({
 	imports: [
@@ -42,6 +43,7 @@ import { JwtAuthStrategy } from './strategies/jwt.strategy';
 		AuthService,
 		TokenService,
 		JwtAuthStrategy,
+		GoogleApiClient,
 	],
 })
 export class AuthModule {}
