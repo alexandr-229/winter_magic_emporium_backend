@@ -23,4 +23,9 @@ export class TokenRepository {
 			.exec();
 		return result;
 	}
+
+	async deleteToken(refreshToken: string) {
+		const result = await this.tokenModel.findOneAndDelete({ refreshToken }).exec();
+		return result;
+	}
 }

@@ -40,7 +40,7 @@ export class AuthService {
 
 		await this.tokenRepository.createToken(refreshToken, user.email);
 
-		return { id: _id };
+		return { id: _id, refreshToken };
 	}
 
 	async activate(email: string, code: number) {
@@ -75,6 +75,10 @@ export class AuthService {
 			throw new HttpException('User not found', HttpStatus.NOT_FOUND);
 		}
 
+		if (!user.isActive) {
+			throw new HttpException('User not activated', HttpStatus.UNAUTHORIZED);
+		}
+
 		const userEntity = new AuthEntity(user);
 
 		const passwordCorrect = await userEntity.comparePassword(password);
@@ -83,33 +87,40 @@ export class AuthService {
 			throw new HttpException('Password incorrect', HttpStatus.UNAUTHORIZED);
 		}
 
-		const refreshTokenData = await this.tokenRepository.getToken(email);
-
-		if (!refreshTokenData) {
-			const token = await this.tokenService.generateToken(email, user._id.toString(), '30d');
-			await this.tokenRepository.createToken(token, email);
-		} else {
-			const { refreshToken } = refreshTokenData.toJSON();
-			const tokenValid = await this.tokenService.validateToken(refreshToken);
-
-			if (!tokenValid) {
-				const token = await this.tokenService.generateToken(
-					email,
-					user._id.toString(),
-					'30d',
-				);
-				await this.tokenRepository.updateToken(email, token);
-			}
-		}
-
 		const accessToken = await this.tokenService.generateToken(
 			email,
 			user._id.toString(),
 			'30m',
 		);
 
-		const result = { accessToken, id: user.id };
+		const result = {
+			response: { accessToken, id: user.id },
+			refreshToken: '',
+		};
+
+		const refreshTokenData = await this.tokenRepository.getToken(email);
+
+		if (!refreshTokenData) {
+			const token = await this.tokenService.generateToken(email, user._id.toString(), '30d');
+			await this.tokenRepository.createToken(token, email);
+			result.refreshToken = token;
+			return result;
+		}
+
+		const { refreshToken } = refreshTokenData.toJSON();
+		const tokenValid = await this.tokenService.validateToken(refreshToken);
+		result.refreshToken = refreshToken;
+
+		if (!tokenValid) {
+			const token = await this.tokenService.generateToken(email, user._id.toString(), '30d');
+			await this.tokenRepository.updateToken(email, token);
+			result.refreshToken = token;
+		}
 
 		return result;
+	}
+
+	async logout(token: string) {
+		await this.tokenRepository.deleteToken(token);
 	}
 }

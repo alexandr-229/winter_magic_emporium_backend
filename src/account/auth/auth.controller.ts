@@ -5,6 +5,7 @@ import {
 	HttpCode,
 	Post,
 	Put,
+	Res,
 	UsePipes,
 	ValidationPipe,
 } from '@nestjs/common';
@@ -13,6 +14,7 @@ import { LoginDto } from './dto/login.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { AuthService } from './auth.service';
 import { ActivateDto } from './dto/activate.dto';
+import { Cookies } from 'src/decorators/cookie';
 
 @Controller('auth')
 export class AuthController {
@@ -20,9 +22,10 @@ export class AuthController {
 
 	@UsePipes(new ValidationPipe())
 	@Post('register')
-	async register(@Body() dto: RegisterDto) {
-		const result = await this.authService.register(dto);
-		return result;
+	async register(@Body() dto: RegisterDto, @Res({ passthrough: true }) response: Response) {
+		const { id, refreshToken } = await this.authService.register(dto);
+		response.cookie('refreshToken', refreshToken, { httpOnly: true });
+		return { id };
 	}
 
 	@UsePipes(new ValidationPipe())
@@ -35,14 +38,25 @@ export class AuthController {
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
 	@Post('login')
-	async login(@Body() { email, password }: LoginDto) {
+	async login(
+		@Body() { email, password }: LoginDto,
+		@Res({ passthrough: true }) response: Response,
+	) {
 		const result = await this.authService.login(email, password);
-		return result;
+		response.cookie('refreshToken', result.refreshToken);
+		return result.response;
 	}
 
 	@HttpCode(200)
 	@Post('logout')
-	async logout() {}
+	async logout(
+		@Cookies('refreshToken') token: string,
+		@Res({ passthrough: true }) response: Response,
+	) {
+		await this.authService.logout(token);
+		response.clearCookie('refreshToken');
+		return { message: 'OK' };
+	}
 
 	@HttpCode(200)
 	@Post('refresh')
