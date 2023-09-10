@@ -3,6 +3,14 @@ import { IPayload } from '../types/payload.interface';
 import { RegisterDto } from '../dto/register.dto';
 import { AuthEntity } from '../auth.entity';
 import { IGoogleUser } from '../types/google.user.interface';
+import {
+	INVALID_CODE,
+	PASSWORD_INCORRECT,
+	REFRESH_TOKEN_NOT_VALID,
+	USER_ALREADY_EXISTS,
+	USER_NOT_ACTIVATED,
+	USER_NOT_FOUND,
+} from '../auth.const';
 
 jest.mock('../auth.entity.ts');
 
@@ -117,7 +125,7 @@ describe('AuthService', () => {
 
 			expect(true).toBe(false);
 		} catch (e) {
-			expect(e.message).toBe('User already exists');
+			expect(e.message).toBe(USER_ALREADY_EXISTS);
 		}
 	});
 
@@ -145,7 +153,7 @@ describe('AuthService', () => {
 
 			expect(true).toBe(false);
 		} catch (e) {
-			expect(e.message).toBe('User not found');
+			expect(e.message).toBe(USER_NOT_FOUND);
 		}
 	});
 
@@ -159,7 +167,7 @@ describe('AuthService', () => {
 
 			expect(true).toBe(false);
 		} catch (e) {
-			expect(e.message).toBe('Invalid code');
+			expect(e.message).toBe(INVALID_CODE);
 		} finally {
 			(AuthEntity as jest.Mock).mockImplementation(() => ({
 				setPassword: jest.fn(),
@@ -198,7 +206,7 @@ describe('AuthService', () => {
 
 			expect(true).toBe(false);
 		} catch (e) {
-			expect(e.message).toBe('User not found');
+			expect(e.message).toBe(USER_NOT_FOUND);
 		}
 	});
 
@@ -219,7 +227,7 @@ describe('AuthService', () => {
 
 			expect(true).toBe(false);
 		} catch (e) {
-			expect(e.message).toBe('User not activated');
+			expect(e.message).toBe(USER_NOT_ACTIVATED);
 		}
 	});
 
@@ -233,7 +241,7 @@ describe('AuthService', () => {
 
 			expect(true).toBe(false);
 		} catch (e) {
-			expect(e.message).toBe('Password incorrect');
+			expect(e.message).toBe(PASSWORD_INCORRECT);
 		} finally {
 			(AuthEntity as jest.Mock).mockImplementation(() => ({
 				setPassword: jest.fn(),
@@ -273,7 +281,7 @@ describe('AuthService', () => {
 
 			expect(true).toBe(false);
 		} catch (e) {
-			expect(e.message).toBe('Refresh token is not valid');
+			expect(e.message).toBe(REFRESH_TOKEN_NOT_VALID);
 		}
 	});
 
@@ -301,7 +309,7 @@ describe('AuthService', () => {
 
 			expect(true).toBe(false);
 		} catch (e) {
-			expect(e.message).toBe('User not found');
+			expect(e.message).toBe(USER_NOT_FOUND);
 		}
 	});
 
@@ -315,7 +323,7 @@ describe('AuthService', () => {
 
 			expect(true).toBe(false);
 		} catch (e) {
-			expect(e.message).toBe('Password incorrect');
+			expect(e.message).toBe(PASSWORD_INCORRECT);
 		} finally {
 			(AuthEntity as jest.Mock).mockImplementation(() => ({
 				setPassword: jest.fn(),

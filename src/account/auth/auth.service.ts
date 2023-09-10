@@ -7,6 +7,14 @@ import { TokenRepository } from './repositories/token.repository';
 import { TokenService } from './token.service';
 import { IGoogleUser } from './types/google.user.interface';
 import { IUser } from './types/user.interface';
+import {
+	INVALID_CODE,
+	PASSWORD_INCORRECT,
+	REFRESH_TOKEN_NOT_VALID,
+	USER_ALREADY_EXISTS,
+	USER_NOT_ACTIVATED,
+	USER_NOT_FOUND,
+} from './auth.const';
 
 @Injectable()
 export class AuthService {
@@ -44,7 +52,7 @@ export class AuthService {
 	async register(dto: RegisterDto) {
 		const existUser = await this.userRepository.getUserByEmail(dto.email);
 		if (existUser) {
-			throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+			throw new HttpException(USER_ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
 		}
 
 		const user = new AuthEntity({ ...dto, code: 0 });
@@ -70,14 +78,14 @@ export class AuthService {
 	async activate(email: string, code: number) {
 		const user = await this.userRepository.getUserByEmail(email);
 		if (!user) {
-			throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+			throw new HttpException(USER_NOT_FOUND, HttpStatus.NOT_FOUND);
 		}
 
 		const userEntity = new AuthEntity(user);
 		const codeValid = userEntity.compareCode(code);
 
 		if (!codeValid) {
-			throw new HttpException('Invalid code', HttpStatus.FORBIDDEN);
+			throw new HttpException(INVALID_CODE, HttpStatus.FORBIDDEN);
 		}
 
 		await this.userRepository.updateUserByEmail(email, { isActive: true });
@@ -96,11 +104,11 @@ export class AuthService {
 	async login(email: string, password: string) {
 		const user = await this.userRepository.getUserByEmail(email);
 		if (!user) {
-			throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+			throw new HttpException(USER_NOT_FOUND, HttpStatus.NOT_FOUND);
 		}
 
 		if (!user.isActive) {
-			throw new HttpException('User not activated', HttpStatus.UNAUTHORIZED);
+			throw new HttpException(USER_NOT_ACTIVATED, HttpStatus.UNAUTHORIZED);
 		}
 
 		const userEntity = new AuthEntity(user);
@@ -108,7 +116,7 @@ export class AuthService {
 		const passwordCorrect = await userEntity.comparePassword(password);
 
 		if (!passwordCorrect) {
-			throw new HttpException('Password incorrect', HttpStatus.UNAUTHORIZED);
+			throw new HttpException(PASSWORD_INCORRECT, HttpStatus.UNAUTHORIZED);
 		}
 
 		const accessToken = await this.tokenService.generateToken(
@@ -135,7 +143,7 @@ export class AuthService {
 		const tokenValid = await this.tokenService.validateToken(refreshToken);
 		if (!tokenValid) {
 			await this.tokenRepository.deleteToken(refreshToken);
-			throw new HttpException('Refresh token is not valid', HttpStatus.UNAUTHORIZED);
+			throw new HttpException(REFRESH_TOKEN_NOT_VALID, HttpStatus.UNAUTHORIZED);
 		}
 
 		const { email, id } = this.tokenService.decodeToken(refreshToken);
@@ -150,14 +158,14 @@ export class AuthService {
 	async changePassword(email: string, oldPassword: string, newPassword: string) {
 		const user = await this.userRepository.getUserByEmail(email);
 		if (!user) {
-			throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+			throw new HttpException(USER_NOT_FOUND, HttpStatus.NOT_FOUND);
 		}
 
 		const userEntity = new AuthEntity(user);
 
 		const passwordValid = await userEntity.comparePassword(oldPassword);
 		if (!passwordValid) {
-			throw new HttpException('Password incorrect', HttpStatus.FORBIDDEN);
+			throw new HttpException(PASSWORD_INCORRECT, HttpStatus.FORBIDDEN);
 		}
 
 		await userEntity.setPassword(newPassword);
