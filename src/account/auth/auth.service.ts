@@ -21,7 +21,7 @@ export class AuthService {
 			throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
 		}
 
-		const user = new AuthEntity(dto);
+		const user = new AuthEntity({ ...dto, code: 0 });
 		user.setLevel();
 		user.setCode();
 		await user.setPassword(dto.password);
@@ -36,5 +36,28 @@ export class AuthService {
 		const { _id } = await this.userRepository.createUser(user);
 
 		return { id: _id };
+	}
+
+	async activate(email: string, code: number) {
+		const user = await this.userRepository.getUserByEmail(email);
+		if (!user) {
+			throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+		}
+
+		const userEntity = new AuthEntity(user);
+		const codeValid = userEntity.compareCode(code);
+
+		if (!codeValid) {
+			throw new HttpException('Invalid code', HttpStatus.FORBIDDEN);
+		}
+
+		await this.userRepository.updateUserByEmail(email, { isActive: true });
+
+		const payload = { id: user.id, email };
+		const accessToken = await this.jwtService.signAsync(payload, { expiresIn: '30m' });
+
+		const result = { accessToken, id: user.id };
+
+		return result;
 	}
 }

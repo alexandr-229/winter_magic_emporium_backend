@@ -9,13 +9,15 @@ export class AuthEntity implements IUser {
 	phone: string;
 	level: number;
 	code: number;
+	isActive: boolean;
 
-	constructor(user: Omit<IUser, 'level' | 'code'>) {
+	constructor(user: Omit<IUser, 'level' | 'isActive'>) {
 		this.email = user.email;
 		this.password = user.password;
 		this.name = user.name;
 		this.lastName = user.lastName;
 		this.phone = user.phone;
+		this.code = user.code;
 	}
 
 	async setPassword(password: string) {
@@ -37,5 +39,10 @@ export class AuthEntity implements IUser {
 	setCode() {
 		const code = Math.round(Math.random() * 8999) + 1000;
 		this.code = code;
+	}
+
+	compareCode(code: number) {
+		const result = this.code === code;
+		return result;
 	}
 }

@@ -3,6 +3,7 @@ import { InjectModel } from 'nestjs-typegoose';
 import { UserModel } from '../../user/models/user.model';
 import { ModelType } from '@typegoose/typegoose/lib/types';
 import { AuthEntity } from '../auth.entity';
+import { UserUpdate } from '../types/user.update.type';
 
 @Injectable()
 export class AuthRepository {
@@ -20,6 +21,11 @@ export class AuthRepository {
 
 	async getUserById(id: string) {
 		const result = await this.userModel.findById(id).exec();
+		return result;
+	}
+
+	async updateUserByEmail(email: string, user: Partial<UserUpdate>) {
+		const result = await this.userModel.findOneAndUpdate({ email }, user, { new: true });
 		return result;
 	}
 }

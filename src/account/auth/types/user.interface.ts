@@ -6,4 +6,5 @@ export interface IUser {
 	phone: string;
 	level: number;
 	code: number;
+	isActive: boolean;
 }
