@@ -60,7 +60,10 @@ export class AuthController {
 
 	@HttpCode(200)
 	@Post('refresh')
-	async refresh() {}
+	async refresh(@Cookies('refreshToken') token: string) {
+		const result = await this.authService.refresh(token);
+		return result;
+	}
 
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)

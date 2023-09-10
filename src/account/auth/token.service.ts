@@ -22,4 +22,12 @@ export class TokenService {
 			return false;
 		}
 	}
+
+	decodeToken(token: string): IPayload {
+		const result = this.jwtService.decode(token);
+		if (!result || typeof result === 'string') {
+			throw new Error('Error in decode token');
+		}
+		return result as IPayload;
+	}
 }

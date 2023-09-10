@@ -4,8 +4,6 @@ import { AuthRepository } from './repositories/auth.repository';
 import { AuthEntity } from './auth.entity';
 import { AuthMailer } from './auth.mailer';
 import { TokenRepository } from './repositories/token.repository';
-import { JwtService } from '@nestjs/jwt';
-import { IPayload } from './types/payload.interface';
 import { TokenService } from './token.service';
 
 @Injectable()
@@ -122,5 +120,21 @@ export class AuthService {
 
 	async logout(token: string) {
 		await this.tokenRepository.deleteToken(token);
+	}
+
+	async refresh(refreshToken: string) {
+		const tokenValid = await this.tokenService.validateToken(refreshToken);
+		if (!tokenValid) {
+			await this.tokenRepository.deleteToken(refreshToken);
+			throw new HttpException('Refresh token is not valid', HttpStatus.UNAUTHORIZED);
+		}
+
+		const { email, id } = this.tokenService.decodeToken(refreshToken);
+
+		const accessToken = await this.tokenService.generateToken(email, id, '30m');
+
+		const result = { accessToken, id };
+
+		return result;
 	}
 }
