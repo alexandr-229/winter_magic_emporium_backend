@@ -8,6 +8,9 @@ import { UserModel } from '../user/models/user.model';
 import { AuthMailer } from './auth.mailer';
 import { ConfigModule } from '@nestjs/config';
 import { AuthService } from './auth.service';
+import { TokenRepository } from './repositories/token.repository';
+import { JwtModule } from '@nestjs/jwt';
+import { getJwtConfig } from 'src/configs/jwt.config';
 
 @Module({
 	imports: [
@@ -25,10 +28,11 @@ import { AuthService } from './auth.service';
 				},
 			},
 		]),
+		JwtModule.registerAsync(getJwtConfig()),
 		UserModule,
 		ConfigModule,
 	],
 	controllers: [AuthController],
-	providers: [AuthRepository, AuthMailer, AuthService],
+	providers: [TokenRepository, AuthRepository, AuthMailer, AuthService],
 })
 export class AuthModule {}
