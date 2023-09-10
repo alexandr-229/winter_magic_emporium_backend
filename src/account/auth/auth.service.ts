@@ -6,6 +6,7 @@ import { AuthMailer } from './auth.mailer';
 import { TokenRepository } from './repositories/token.repository';
 import { JwtService } from '@nestjs/jwt';
 import { IPayload } from './types/payload.interface';
+import { TokenService } from './token.service';
 
 @Injectable()
 export class AuthService {
@@ -13,7 +14,7 @@ export class AuthService {
 		private readonly userRepository: AuthRepository,
 		private readonly tokenRepository: TokenRepository,
 		private readonly authMailer: AuthMailer,
-		private readonly jwtService: JwtService,
+		private readonly tokenService: TokenService,
 	) {}
 
 	async register(dto: RegisterDto) {
@@ -31,8 +32,11 @@ export class AuthService {
 
 		const { _id } = await this.userRepository.createUser(user);
 
-		const payload: IPayload = { email: user.email, id: _id.toString() };
-		const refreshToken = await this.jwtService.signAsync(payload, { expiresIn: '30d' });
+		const refreshToken = await this.tokenService.generateToken(
+			user.email,
+			_id.toString(),
+			'30d',
+		);
 
 		await this.tokenRepository.createToken(refreshToken, user.email);
 
@@ -54,8 +58,11 @@ export class AuthService {
 
 		await this.userRepository.updateUserByEmail(email, { isActive: true });
 
-		const payload: IPayload = { id: user.id, email };
-		const accessToken = await this.jwtService.signAsync(payload, { expiresIn: '30m' });
+		const accessToken = await this.tokenService.generateToken(
+			email,
+			user._id.toString(),
+			'30m',
+		);
 
 		const result = { accessToken, id: user.id };
 
@@ -76,8 +83,30 @@ export class AuthService {
 			throw new HttpException('Password incorrect', HttpStatus.UNAUTHORIZED);
 		}
 
-		const payload: IPayload = { id: user.id, email };
-		const accessToken = await this.jwtService.signAsync(payload, { expiresIn: '30m' });
+		const refreshTokenData = await this.tokenRepository.getToken(email);
+
+		if (!refreshTokenData) {
+			const token = await this.tokenService.generateToken(email, user._id.toString(), '30d');
+			await this.tokenRepository.createToken(token, email);
+		} else {
+			const { refreshToken } = refreshTokenData.toJSON();
+			const tokenValid = await this.tokenService.validateToken(refreshToken);
+
+			if (!tokenValid) {
+				const token = await this.tokenService.generateToken(
+					email,
+					user._id.toString(),
+					'30d',
+				);
+				await this.tokenRepository.updateToken(email, token);
+			}
+		}
+
+		const accessToken = await this.tokenService.generateToken(
+			email,
+			user._id.toString(),
+			'30m',
+		);
 
 		const result = { accessToken, id: user.id };
 

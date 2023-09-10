@@ -13,16 +13,14 @@ export class TokenRepository {
 	}
 
 	async getToken(email: string) {
-		const result = await this.tokenModel.findOne({ userEmail: email });
+		const result = await this.tokenModel.findOne({ userEmail: email }).exec();
 		return result;
 	}
 
 	async updateToken(userEmail: string, refreshToken: string) {
-		const result = await this.tokenModel.updateOne(
-			{ userEmail },
-			{ $set: { refreshToken } },
-			{ new: true },
-		);
+		const result = await this.tokenModel
+			.updateOne({ userEmail }, { $set: { refreshToken } }, { new: true })
+			.exec();
 		return result;
 	}
 }
