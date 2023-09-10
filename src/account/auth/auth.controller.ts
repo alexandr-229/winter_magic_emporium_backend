@@ -6,6 +6,7 @@ import {
 	Post,
 	Put,
 	Res,
+	UseGuards,
 	UsePipes,
 	ValidationPipe,
 } from '@nestjs/common';
@@ -15,6 +16,9 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { AuthService } from './auth.service';
 import { ActivateDto } from './dto/activate.dto';
 import { Cookies } from 'src/decorators/cookie';
+import { AuthGuard } from '@nestjs/passport';
+import { User } from 'src/decorators/user';
+import { IPayload } from './types/payload.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -65,10 +69,14 @@ export class AuthController {
 		return result;
 	}
 
+	@UseGuards(AuthGuard('jwt'))
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
 	@Put('password')
-	async changePassword(@Body() { email, oldPassword, newPassword }: ChangePasswordDto) {
+	async changePassword(
+		@Body() { oldPassword, newPassword }: ChangePasswordDto,
+		@User() { email }: IPayload,
+	) {
 		const result = await this.authService.changePassword(email, oldPassword, newPassword);
 		return result;
 	}

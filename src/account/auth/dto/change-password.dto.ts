@@ -6,7 +6,4 @@ export class ChangePasswordDto {
 
 	@IsString()
 	newPassword: string;
-
-	@IsString()
-	email: string;
 }
