@@ -68,7 +68,10 @@ export class AuthController {
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
 	@Put('password')
-	async changePassword(@Body() dto: ChangePasswordDto) {}
+	async changePassword(@Body() { email, oldPassword, newPassword }: ChangePasswordDto) {
+		const result = await this.authService.changePassword(email, oldPassword, newPassword);
+		return result;
+	}
 
 	@Get('oauth')
 	async googleAuth() {}

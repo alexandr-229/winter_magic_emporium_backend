@@ -137,4 +137,26 @@ export class AuthService {
 
 		return result;
 	}
+
+	async changePassword(email: string, oldPassword: string, newPassword: string) {
+		const user = await this.userRepository.getUserByEmail(email);
+		if (!user) {
+			throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+		}
+
+		const userEntity = new AuthEntity(user);
+
+		const passwordValid = await userEntity.comparePassword(oldPassword);
+		if (!passwordValid) {
+			throw new HttpException('Password incorrect', HttpStatus.FORBIDDEN);
+		}
+
+		await userEntity.setPassword(newPassword);
+
+		await this.userRepository.updateUserByEmail(email, userEntity);
+
+		const result = { id: user._id };
+
+		return result;
+	}
 }
