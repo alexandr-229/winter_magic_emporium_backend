@@ -23,7 +23,7 @@ export class UserRepository {
 		return result;
 	}
 
-	async addFavoriteGoods(email: string, product: string) {
+	async addFavoriteProduct(email: string, product: string) {
 		const productId = new Types.ObjectId(product);
 		const result = await this.userModel
 			.findOneAndUpdate({ email }, { $push: { favorites: productId } }, { new: true })
@@ -32,12 +32,30 @@ export class UserRepository {
 		return result;
 	}
 
-	async removeFavoriteGoods(email: string, product: string) {
+	async removeFavoriteProduct(email: string, product: string) {
 		const productId = new Types.ObjectId(product);
 		const result = await this.userModel
 			.findOneAndUpdate({ email }, { $pull: { favorites: productId } }, { new: true })
 			.exec();
 
 		return result;
+	}
+
+	async getFavoritesProducts(email: string) {
+		const user = await this.getUserByEmail(email);
+		if (!user) {
+			return null;
+		}
+		const products = await user.populate('favorites');
+		return products;
+	}
+
+	async getOrderHistory(email: string) {
+		const user = await this.getUserByEmail(email);
+		if (!user) {
+			return null;
+		}
+		const history = await user.populate('orders.productsId');
+		return history;
 	}
 }

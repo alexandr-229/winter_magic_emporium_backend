@@ -1,11 +1,25 @@
-import { Controller, Get, Post, Put } from '@nestjs/common';
+import { Controller, Get, HttpException, HttpStatus, Post, Put, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { User } from 'src/decorators/user';
+import { IPayload } from '../auth/types/payload.interface';
+import { USER_NOT_FOUND } from './user.const';
+import { UserEntity } from './user.entity';
+import { UserRepository } from './user.repository';
 
 @Controller('user')
 export class UserController {
-	constructor() {}
+	constructor(private readonly userRepository: UserRepository) {}
 
+	@UseGuards(AuthGuard('jwt'))
 	@Get('me')
-	async getMe() {}
+	async getMe(@User() { email }: IPayload) {
+		const user = await this.userRepository.getUserByEmail(email);
+		if (!user) {
+			throw new HttpException(USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+		}
+		const profile = new UserEntity(user).getPublicProfile();
+		return profile;
+	}
 
 	@Get('favorites')
 	async getFavoritesGoods() {}

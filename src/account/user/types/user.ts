@@ -22,3 +22,8 @@ export interface IUser {
 	favorites: Types.ObjectId[];
 	orders: IOrder[];
 }
+
+export type PublicProfile = Pick<
+	IUser,
+	'email' | 'name' | 'lastName' | 'phone' | 'level' | 'photo'
+>;
