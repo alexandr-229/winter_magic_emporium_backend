@@ -1,6 +1,8 @@
 import { prop } from '@typegoose/typegoose';
+import { TimeStamps, Base } from '@typegoose/typegoose/lib/defaultClasses';
 
-export class TokenModel {
+export interface TokenModel extends Base {}
+export class TokenModel extends TimeStamps {
 	@prop()
 	refreshToken: string;
 
