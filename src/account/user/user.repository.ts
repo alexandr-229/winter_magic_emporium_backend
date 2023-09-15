@@ -46,8 +46,8 @@ export class UserRepository {
 		if (!user) {
 			return null;
 		}
-		const products = await user.populate('favorites');
-		return products;
+		const products = await user.populate({ path: 'favorites' });
+		return products.favorites;
 	}
 
 	async getOrderHistory(email: string) {

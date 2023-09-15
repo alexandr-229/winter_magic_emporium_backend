@@ -1,6 +1,7 @@
 import { prop } from '@typegoose/typegoose';
 import { Base, TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
 import { Types } from 'mongoose';
+import { ProductModel } from '../../../products/models/product.model';
 
 export enum OrderStatus {
 	Delivered = 'Delivered',
@@ -55,7 +56,7 @@ export class UserModel extends TimeStamps {
 	@prop()
 	code: number;
 
-	@prop({ type: () => [Types.ObjectId], _id: false, ref: 'Product' })
+	@prop({ type: () => [Types.ObjectId], _id: false, ref: () => ProductModel })
 	favorites: Types.ObjectId[];
 
 	@prop({ type: () => [Order] })

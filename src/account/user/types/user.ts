@@ -10,6 +10,7 @@ export interface IOrder {
 }
 
 export interface IUser {
+	id: string;
 	email: string;
 	password: string;
 	name: string;
@@ -25,5 +26,5 @@ export interface IUser {
 
 export type PublicProfile = Pick<
 	IUser,
-	'email' | 'name' | 'lastName' | 'phone' | 'level' | 'photo'
+	'email' | 'name' | 'lastName' | 'phone' | 'level' | 'photo' | 'id'
 >;

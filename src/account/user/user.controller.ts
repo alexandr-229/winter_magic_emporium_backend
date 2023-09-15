@@ -21,8 +21,15 @@ export class UserController {
 		return profile;
 	}
 
+	@UseGuards(AuthGuard('jwt'))
 	@Get('favorites')
-	async getFavoritesGoods() {}
+	async getFavoritesGoods(@User() { email }: IPayload) {
+		const products = await this.userRepository.getFavoritesProducts(email);
+		if (!products) {
+			throw new HttpException(USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+		}
+		return products;
+	}
 
 	@Post('favorites')
 	async setFavoritesGoods() {}

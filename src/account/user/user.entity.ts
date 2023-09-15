@@ -2,6 +2,7 @@ import { Types } from 'mongoose';
 import { IOrder, IUser, PublicProfile } from './types/user';
 
 export class UserEntity implements IUser {
+	id: string;
 	email: string;
 	password: string;
 	name: string;
@@ -15,6 +16,7 @@ export class UserEntity implements IUser {
 	orders: IOrder[];
 
 	constructor(user: Omit<IUser, 'password' | 'code'>) {
+		this.id = user.id;
 		this.email = user.email;
 		this.name = user.name;
 		this.lastName = user.lastName;
@@ -28,6 +30,7 @@ export class UserEntity implements IUser {
 
 	getPublicProfile() {
 		const result: PublicProfile = {
+			id: this.id,
 			email: this.email,
 			name: this.name,
 			lastName: this.lastName,
