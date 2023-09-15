@@ -10,7 +10,7 @@ export enum OrderStatus {
 
 export interface Order extends Base {}
 export class Order extends TimeStamps {
-	@prop({ type: [Types.ObjectId], _id: false })
+	@prop({ type: [Types.ObjectId], _id: false, ref: 'Product' })
 	productsId: Types.ObjectId[];
 
 	@prop()
@@ -55,7 +55,7 @@ export class UserModel extends TimeStamps {
 	@prop()
 	code: number;
 
-	@prop({ type: () => [Types.ObjectId], _id: false })
+	@prop({ type: () => [Types.ObjectId], _id: false, ref: 'Product' })
 	favorites: Types.ObjectId[];
 
 	@prop({ type: () => [Order] })
