@@ -4,6 +4,7 @@ import { ModelType } from '@typegoose/typegoose/lib/types';
 import { InjectModel } from 'nestjs-typegoose';
 import { IUser } from './types/user';
 import { Types } from 'mongoose';
+import { PRODUCT_ALREADY_IN_FAVORITES, USER_NOT_FOUND } from './user.const';
 
 @Injectable()
 export class UserRepository {
@@ -23,13 +24,23 @@ export class UserRepository {
 		return result;
 	}
 
-	async addFavoriteProduct(email: string, product: string) {
-		const productId = new Types.ObjectId(product);
-		const result = await this.userModel
-			.findOneAndUpdate({ email }, { $push: { favorites: productId } }, { new: true })
-			.exec();
+	async addFavoriteProduct(email: string, product: string): Promise<string | true> {
+		const user = await this.userModel.findOne({ email });
+		if (!user) {
+			return USER_NOT_FOUND;
+		}
 
-		return result;
+		const productExists = user.favorites.map(String).includes(product.toString());
+
+		if (productExists) {
+			return PRODUCT_ALREADY_IN_FAVORITES;
+		}
+
+		const productId = new Types.ObjectId(product);
+		user.favorites.push(productId);
+		await user.save();
+
+		return true;
 	}
 
 	async removeFavoriteProduct(email: string, product: string) {
