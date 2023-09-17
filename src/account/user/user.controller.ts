@@ -13,6 +13,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/decorators/user';
 import { IPayload } from '../auth/types/payload.interface';
+import { ChangeProfileDto } from './dto/change.profile.dto';
 import { FavoritesGoodsActions, SetFavoritesGoodsDto } from './dto/set.favorites.goods.dto';
 import { UNKNOWN_ACTION, USER_NOT_FOUND } from './user.const';
 import { UserEntity } from './user.entity';
@@ -67,8 +68,17 @@ export class UserController {
 		throw new HttpException(UNKNOWN_ACTION, HttpStatus.BAD_REQUEST);
 	}
 
+	@UseGuards(AuthGuard('jwt'))
 	@Put('profile')
-	async changeProfile() {}
+	async changeProfile(@User() { email }: IPayload, @Body() dto: ChangeProfileDto) {
+		const user = await this.userRepository.getUserByEmail(email);
+		if (!user) {
+			throw new HttpException(USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+		}
+		const updateProfile = new UserEntity(user).getUpdateProfile(dto);
+		await this.userRepository.changePersonalDataByEmail(email, updateProfile);
+		return { message: 'OK' };
+	}
 
 	@Get('orders')
 	async getOrderHistory() {}

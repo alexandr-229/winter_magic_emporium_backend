@@ -17,10 +17,9 @@ export class UserRepository {
 
 	async changePersonalDataByEmail(
 		email: string,
-		user: Pick<IUser, 'phone' | 'name' | 'lastName'>,
+		user: Partial<Pick<IUser, 'phone' | 'name' | 'lastName' | 'photo'>>,
 	) {
 		const result = await this.userModel.findOneAndUpdate({ email }, user, { new: true }).exec();
-
 		return result;
 	}
 

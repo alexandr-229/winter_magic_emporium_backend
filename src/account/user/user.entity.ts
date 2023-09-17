@@ -1,4 +1,5 @@
 import { Types } from 'mongoose';
+import { ChangeProfileDto } from './dto/change.profile.dto';
 import { IOrder, IUser, PublicProfile } from './types/user';
 
 export class UserEntity implements IUser {
@@ -38,6 +39,25 @@ export class UserEntity implements IUser {
 			photo: this.photo,
 			level: this.level,
 		};
+
+		return result;
+	}
+
+	getUpdateProfile(dto: ChangeProfileDto) {
+		const result: Partial<Pick<IUser, 'name' | 'lastName' | 'photo' | 'phone'>> = {};
+
+		if (dto.lastName) {
+			result.lastName = dto.lastName;
+		}
+		if (dto.name) {
+			result.name = dto.name;
+		}
+		if (dto.phone) {
+			result.phone = dto.phone;
+		}
+		if (dto.photo) {
+			result.photo = dto.photo;
+		}
 
 		return result;
 	}
