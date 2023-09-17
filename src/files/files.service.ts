@@ -17,7 +17,7 @@ export class FilesService {
 		for (const file of files) {
 			const time = format(new Date(), 'hh:mm:ss.SSS');
 			const filePath = `${dirPath}/${time}-${file.originalname}`;
-			const absolutePath = `/${folderName}/${time}-${file.originalname}`;
+			const absolutePath = `/${folderName}/${date}/${time}-${file.originalname}`;
 
 			await writeFile(filePath, file.buffer);
 

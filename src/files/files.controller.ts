@@ -1,8 +1,8 @@
-import { Controller, Get, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FilesService } from './files.service';
 
-@Controller()
+@Controller('files')
 export class FilesController {
 	constructor(private readonly filesService: FilesService) {}
 
@@ -12,7 +12,4 @@ export class FilesController {
 		const [path] = await this.filesService.uploadFile([file]);
 		return { path };
 	}
-
-	@Get(':path')
-	async getFile() {}
 }
