@@ -65,7 +65,7 @@ export class UserRepository {
 		if (!user) {
 			return null;
 		}
-		const history = await user.populate('orders.productsId');
-		return history;
+		const history = await user.populate('orders.products');
+		return history.orders;
 	}
 }

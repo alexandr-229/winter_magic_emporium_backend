@@ -2,7 +2,7 @@ import { Types } from 'mongoose';
 import { OrderStatus } from '../models/user.model';
 
 export interface IOrder {
-	productsId: Types.ObjectId[];
+	products: Types.ObjectId[];
 	index: number;
 	sum: number;
 	status: OrderStatus;

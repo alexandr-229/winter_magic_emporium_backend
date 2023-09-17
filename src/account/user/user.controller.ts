@@ -80,6 +80,13 @@ export class UserController {
 		return { message: 'OK' };
 	}
 
+	@UseGuards(AuthGuard('jwt'))
 	@Get('orders')
-	async getOrderHistory() {}
+	async getOrderHistory(@User() { email }: IPayload) {
+		const result = await this.userRepository.getOrderHistory(email);
+		if (!result) {
+			throw new HttpException(USER_NOT_FOUND, HttpStatus.NOT_FOUND);
+		}
+		return result;
+	}
 }

@@ -11,8 +11,8 @@ export enum OrderStatus {
 
 export interface Order extends Base {}
 export class Order extends TimeStamps {
-	@prop({ type: [Types.ObjectId], _id: false, ref: 'Product' })
-	productsId: Types.ObjectId[];
+	@prop({ type: [Types.ObjectId], _id: false, ref: () => ProductModel })
+	products: Types.ObjectId[];
 
 	@prop()
 	index: number;
