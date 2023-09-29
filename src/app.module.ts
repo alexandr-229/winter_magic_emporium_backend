@@ -3,7 +3,6 @@ import { TypegooseModule } from 'nestjs-typegoose';
 import { ConfigModule } from '@nestjs/config';
 import { getMongoConfig } from './configs/mongo.config';
 import { AccountModule } from './account/account.module';
-import { ProductsModule } from './products/products.module';
 import { FilesModule } from './files/files.module';
 import { ProductModule } from './product/product.module';
 
@@ -14,7 +13,6 @@ import { ProductModule } from './product/product.module';
 		}),
 		TypegooseModule.forRootAsync(getMongoConfig()),
 		AccountModule,
-		ProductsModule,
 		FilesModule,
 		ProductModule,
 	],

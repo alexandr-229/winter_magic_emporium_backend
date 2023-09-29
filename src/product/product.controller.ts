@@ -1,7 +1,10 @@
 import { Controller, Get, Post, Put, Delete, Param } from '@nestjs/common';
+import { ProductRepository } from './product.repository';
 
 @Controller('product')
 export class ProductController {
+	constructor(private readonly productRepository: ProductRepository) {}
+
 	@Get('all')
 	async getAllProducts() {
 		return [];

@@ -1,7 +1,7 @@
 import { prop } from '@typegoose/typegoose';
 import { Base, TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
 import { Types } from 'mongoose';
-import { ProductModel } from '../../../products/models/product.model';
+import { ProductModel } from '../../../product/models/product.model';
 
 export enum OrderStatus {
 	Delivered = 'Delivered',
