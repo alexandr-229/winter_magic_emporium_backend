@@ -27,7 +27,7 @@ export class ProductModel extends TimeStamps {
 	@prop()
 	price: number;
 
-	@prop()
+	@prop({ default: 0 })
 	discounts: number;
 
 	@prop()
@@ -36,9 +36,12 @@ export class ProductModel extends TimeStamps {
 	@prop({ enum: () => Tag })
 	tag: Tag;
 
-	@prop()
+	@prop({ default: true })
 	new: boolean;
 
-	@prop({ type: () => Size })
+	@prop({ default: false })
+	popular: boolean;
+
+	@prop({ type: () => Size, _id: false })
 	size: Size;
 }

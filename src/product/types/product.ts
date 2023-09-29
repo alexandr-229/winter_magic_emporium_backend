@@ -14,5 +14,8 @@ export interface IProduct {
 	quantity: number;
 	tag: Tag;
 	new: boolean;
+	popular: boolean;
 	size: ISize;
+	createdAt?: Date;
+	updatedAt?: Date;
 }
