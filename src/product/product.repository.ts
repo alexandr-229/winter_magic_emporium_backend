@@ -60,11 +60,19 @@ export class ProductRepository {
 	}
 
 	async updateProductById(id: string, product: Partial<IProduct>) {
-		const { popular, _id, new: _, ...productToUpdate } = product;
+		const { _id, ...productToUpdate } = product;
 
 		const result = await this.productModel
 			.findByIdAndUpdate(id, { $set: productToUpdate }, { new: true })
 			.exec();
+		return result;
+	}
+
+	async updateProducts(
+		filters: Partial<Omit<IProduct, '_id'>>,
+		update: Partial<Omit<IProduct, '_id'>>,
+	) {
+		const result = await this.productModel.updateMany(filters, update, { new: true });
 		return result;
 	}
 

@@ -60,8 +60,9 @@ export class ProductService {
 		return result;
 	}
 
-	async updateProduct(id: string, dto: UpdateProductDto) {
-		const result = await this.productRepository.updateProductById(id, dto);
+	async updateProduct(id: string, dto: UpdateProductDto & { popular?: boolean; new?: boolean }) {
+		const { popular, new: _, ...update } = dto;
+		const result = await this.productRepository.updateProductById(id, update);
 		return result;
 	}
 
