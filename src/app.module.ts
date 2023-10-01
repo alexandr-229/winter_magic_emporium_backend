@@ -7,6 +7,8 @@ import { FilesModule } from './files/files.module';
 import { ProductModule } from './product/product.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CartModule } from './cart/cart.module';
+import { PaymentModule } from './payment/payment.module';
+import { SenderModule } from './sender/sender.module';
 
 @Module({
 	imports: [
@@ -19,6 +21,8 @@ import { CartModule } from './cart/cart.module';
 		FilesModule,
 		ProductModule,
 		CartModule,
+		PaymentModule,
+		SenderModule,
 	],
 })
 export class AppModule {}
