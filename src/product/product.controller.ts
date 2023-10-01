@@ -21,6 +21,7 @@ import { GetPopularDto } from './dto/get.popular.dto';
 import { GetPromotionalDto } from './dto/get.promotional.dto';
 import { GetSimilarDto } from './dto/get.similar.dto';
 import { UpdateProductDto } from './dto/update.product.dto';
+import { PRODUCT_NOT_FOUND } from './product.const';
 import { ProductService } from './product.service';
 import { Filter, GetProductsOptions } from './types/service';
 
@@ -106,7 +107,7 @@ export class ProductController {
 	async getProduct(@Param('id') productId: string) {
 		const result = await this.productService.getProduct(productId);
 		if (!result) {
-			throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+			throw new HttpException(PRODUCT_NOT_FOUND, HttpStatus.NOT_FOUND);
 		}
 		return result;
 	}
@@ -125,7 +126,7 @@ export class ProductController {
 	async updateProduct(@Param('id') productId: string, @Body() dto: UpdateProductDto) {
 		const result = await this.productService.updateProduct(productId, dto);
 		if (!result) {
-			throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+			throw new HttpException(PRODUCT_NOT_FOUND, HttpStatus.NOT_FOUND);
 		}
 		return result;
 	}
@@ -135,7 +136,7 @@ export class ProductController {
 	async deleteProduct(@Param('id') productId: string) {
 		const result = await this.productService.deleteProduct(productId);
 		if (!result) {
-			throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+			throw new HttpException(PRODUCT_NOT_FOUND, HttpStatus.NOT_FOUND);
 		}
 		return { message: 'OK', id: productId };
 	}
