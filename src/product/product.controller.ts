@@ -11,11 +11,14 @@ import {
 	UsePipes,
 	ValidationPipe,
 	Query,
+	UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { CreateProductDto } from './dto/create.product.dto';
 import { GetAllProductsDto } from './dto/get.all.products.dto';
 import { GetNewDto } from './dto/get.new.dto';
 import { GetPopularDto } from './dto/get.popular.dto';
+import { GetPromotionalDto } from './dto/get.promotional.dto';
 import { GetSimilarDto } from './dto/get.similar.dto';
 import { UpdateProductDto } from './dto/update.product.dto';
 import { ProductService } from './product.service';
@@ -45,6 +48,19 @@ export class ProductController {
 	@Post('similar')
 	async getSimilarProducts(@Body() dto: GetSimilarDto) {
 		const result = await this.productService.getSimilarProducts(dto);
+		return result;
+	}
+
+	@UsePipes(new ValidationPipe())
+	@Get('promotional')
+	async getPromotionalProducts(@Query() { limit }: GetPromotionalDto) {
+		const result = await this.productService.getProducts({
+			filter: Filter.Promotional,
+			pagination: {
+				page: 0,
+				limit: limit || 50,
+			},
+		});
 		return result;
 	}
 
@@ -95,6 +111,7 @@ export class ProductController {
 		return result;
 	}
 
+	@UseGuards(AuthGuard('jwt'))
 	@UsePipes(new ValidationPipe())
 	@Post('')
 	async createProduct(@Body() dto: CreateProductDto) {
@@ -102,6 +119,7 @@ export class ProductController {
 		return result;
 	}
 
+	@UseGuards(AuthGuard('jwt'))
 	@UsePipes(new ValidationPipe())
 	@Put(':id')
 	async updateProduct(@Param('id') productId: string, @Body() dto: UpdateProductDto) {
@@ -112,6 +130,7 @@ export class ProductController {
 		return result;
 	}
 
+	@UseGuards(AuthGuard('jwt'))
 	@Delete(':id')
 	async deleteProduct(@Param('id') productId: string) {
 		const result = await this.productService.deleteProduct(productId);

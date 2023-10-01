@@ -1,21 +1,23 @@
+import { FilterQuery } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create.product.dto';
 import { GetSimilarDto } from './dto/get.similar.dto';
 import { UpdateProductDto } from './dto/update.product.dto';
 import { ProductRepository } from './product.repository';
-import { IProduct } from './types/product';
 import { Filter, GetProductsOptions } from './types/service';
 import { SimilarOptions } from './types/repository';
+import { ProductModel } from './models/product.model';
 
 @Injectable()
 export class ProductService {
 	constructor(private readonly productRepository: ProductRepository) {}
 
 	async getProducts(options: GetProductsOptions) {
-		const dbFilters: Record<Filter, Partial<Omit<IProduct, '_id'>>> = {
+		const dbFilters: Record<Filter, FilterQuery<ProductModel>> = {
 			[Filter.All]: {},
 			[Filter.New]: { new: true },
 			[Filter.Popular]: { popular: true },
+			[Filter.Promotional]: { discounts: { $gte: 1 } },
 		};
 
 		const result = await this.productRepository.getProducts({

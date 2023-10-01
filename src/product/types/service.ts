@@ -9,6 +9,7 @@ export enum Filter {
 	All = 'all',
 	New = 'new',
 	Popular = 'popular',
+	Promotional = 'promotional',
 }
 
 export interface GetProductsOptions {
