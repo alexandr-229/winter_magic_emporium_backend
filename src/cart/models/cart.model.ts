@@ -3,7 +3,7 @@ import { Base, TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
 import { Types } from 'mongoose';
 
 class Product {
-	@prop()
+	@prop({ unique: true })
 	productId: Types.ObjectId;
 
 	@prop()
@@ -15,6 +15,6 @@ export class CartModel extends TimeStamps {
 	@prop({ unique: true })
 	user: string;
 
-	@prop({ type: () => [Product], default: [], _id: false })
+	@prop({ type: () => [Product], default: [], _id: false, unique: true })
 	products: Product[];
 }

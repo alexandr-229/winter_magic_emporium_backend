@@ -2,7 +2,7 @@ import { Types } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { ModelType } from '@typegoose/typegoose/lib/types';
 import { InjectModel } from 'nestjs-typegoose';
-import { CartModel } from './cart.model';
+import { CartModel } from './models/cart.model';
 
 @Injectable()
 export class CartRepository {

@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { CartController } from './cart.controller';
+import { CartService } from './cart.service';
 import { CartModel } from './models/cart.model';
-import { CartRepository } from './models/cart.repository';
+import { CartRepository } from './cart.repository';
 
 @Module({
 	imports: [
@@ -16,6 +17,6 @@ import { CartRepository } from './models/cart.repository';
 		]),
 	],
 	controllers: [CartController],
-	providers: [CartRepository],
+	providers: [CartRepository, CartService],
 })
 export class CartModule {}
