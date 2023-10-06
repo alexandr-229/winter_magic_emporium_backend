@@ -1,5 +1,5 @@
 FROM node:20-alpine
-WORKDIR /app
+WORKDIR /
 ADD package.json .
 RUN npm i --force
 ADD . .
