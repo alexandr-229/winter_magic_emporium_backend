@@ -1,11 +1,6 @@
 import { ModuleMetadata } from '@nestjs/common';
 
 export interface ISenderOptions {
-	twilio: {
-		accountSid: string;
-		authToken: string;
-		from: string;
-	};
 	telegram: {
 		botId: string;
 		chatId: string;
