@@ -21,6 +21,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/decorators/user';
 import { IPayload } from './types/payload.interface';
 import { GoogleApiClient } from './google.api.client';
+import { Response } from './types/response.interface';
 
 @Controller('auth')
 export class AuthController {
