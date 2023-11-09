@@ -29,6 +29,9 @@ export class CreateProductDto {
 	@IsNumber()
 	price: number;
 
+	@IsString()
+	description: string;
+
 	@IsOptional()
 	@IsNumber()
 	discounts: number;

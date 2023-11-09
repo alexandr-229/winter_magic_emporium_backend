@@ -16,6 +16,7 @@ export interface IProduct {
 	new: boolean;
 	popular: boolean;
 	size: ISize;
+	description: string;
 	createdAt?: Date;
 	updatedAt?: Date;
 }

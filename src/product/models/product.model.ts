@@ -33,6 +33,9 @@ export class ProductModel extends TimeStamps {
 	@prop()
 	quantity: number;
 
+	@prop()
+	description: string;
+
 	@prop({ enum: () => Tag })
 	tag: Tag;
 

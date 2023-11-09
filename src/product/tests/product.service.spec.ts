@@ -85,6 +85,7 @@ describe('Product service', () => {
 			discounts: 10,
 			quantity: 10,
 			tag: Tag.Available,
+			description: 'description',
 			size: {
 				value: 10,
 				unit: 'm',
