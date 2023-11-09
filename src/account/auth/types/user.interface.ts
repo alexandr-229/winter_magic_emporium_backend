@@ -1,3 +1,5 @@
+import { Types } from 'mongoose';
+
 export interface IUser {
 	email: string;
 	password: string;
@@ -7,4 +9,5 @@ export interface IUser {
 	level: number;
 	code: number;
 	isActive: boolean;
+	favorites: Types.ObjectId[];
 }

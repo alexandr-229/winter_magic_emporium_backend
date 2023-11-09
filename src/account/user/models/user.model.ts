@@ -56,7 +56,12 @@ export class UserModel extends TimeStamps {
 	@prop()
 	code: number;
 
-	@prop({ type: () => [Types.ObjectId], _id: false, ref: () => ProductModel })
+	@prop({
+		type: () => [Types.ObjectId],
+		_id: false,
+		ref: () => ProductModel,
+		default: [],
+	})
 	favorites: Types.ObjectId[];
 
 	@prop({ type: () => [Order] })

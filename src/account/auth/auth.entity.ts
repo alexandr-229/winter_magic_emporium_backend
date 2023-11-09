@@ -1,5 +1,6 @@
 import { IUser } from './types/user.interface';
 import { genSalt, hash, compare } from 'bcryptjs';
+import { Types } from 'mongoose';
 
 export class AuthEntity implements IUser {
 	email: string;
@@ -10,6 +11,7 @@ export class AuthEntity implements IUser {
 	level: number;
 	code: number;
 	isActive: boolean;
+	favorites: Types.ObjectId[];
 
 	constructor(user: Omit<IUser, 'level' | 'isActive'>) {
 		this.email = user.email;
@@ -18,6 +20,7 @@ export class AuthEntity implements IUser {
 		this.lastName = user.lastName;
 		this.phone = user.phone;
 		this.code = user.code;
+		this.favorites = user.favorites;
 	}
 
 	async setPassword(password: string) {

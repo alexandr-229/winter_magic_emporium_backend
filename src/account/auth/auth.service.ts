@@ -55,7 +55,7 @@ export class AuthService {
 			throw new HttpException(USER_ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
 		}
 
-		const user = new AuthEntity({ ...dto, code: 0 });
+		const user = new AuthEntity({ ...dto, code: 0, favorites: [] });
 		user.setLevel();
 		user.setCode();
 		await user.setPassword(dto.password);
@@ -200,6 +200,7 @@ export class AuthService {
 				lastName: '',
 				phone: '',
 				code: 0,
+				favorites: [],
 			};
 
 			const userEntity = new AuthEntity(defaultUser);

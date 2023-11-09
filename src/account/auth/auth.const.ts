@@ -1,4 +1,4 @@
-export const USER_NOT_FOUND = 'User already exists';
+export const USER_NOT_FOUND = 'User not found';
 export const INVALID_CODE = 'Invalid code';
 export const USER_NOT_ACTIVATED = 'User not activated';
 export const PASSWORD_INCORRECT = 'Password incorrect';

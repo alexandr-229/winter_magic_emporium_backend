@@ -14,6 +14,7 @@ const defaultUser: Omit<IUser, 'level' | 'isActive'> = {
 	lastName: 'lastName',
 	phone: 'phone',
 	code: 0,
+	favorites: [],
 };
 
 describe('AuthEntity', () => {
