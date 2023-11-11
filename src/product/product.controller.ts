@@ -12,8 +12,13 @@ import {
 	ValidationPipe,
 	Query,
 	UseGuards,
+	Header,
+	Headers,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { SharableService } from 'src/account/auth/sharable.service';
+import { IPayload } from 'src/account/auth/types/payload.interface';
+import { User } from 'src/decorators/user';
 import { CreateProductDto } from './dto/create.product.dto';
 import { GetAllProductsDto } from './dto/get.all.products.dto';
 import { GetNewDto } from './dto/get.new.dto';
@@ -27,11 +32,21 @@ import { Filter, GetProductsOptions } from './types/service';
 
 @Controller('product')
 export class ProductController {
-	constructor(private readonly productService: ProductService) {}
+	constructor(
+		private readonly productService: ProductService,
+		private readonly userService: SharableService,
+	) {}
 
 	@UsePipes(new ValidationPipe({ transform: true }))
 	@Post('all')
-	async getAllProducts(@Body() { page, limit, sort }: GetAllProductsDto) {
+	async getAllProducts(
+		@Body() { page, limit, sort }: GetAllProductsDto,
+		@Headers('Authorization') token: string | undefined,
+	) {
+		const user: IPayload | null = token
+			? this.userService.getUserByToken(token.split(' ')[1])
+			: null;
+
 		const pagination = {
 			page: typeof page === 'number' ? page - 1 : 0,
 			limit: typeof limit === 'number' ? limit : 50,
@@ -41,22 +56,38 @@ export class ProductController {
 			filter: Filter.All,
 			pagination,
 			sort: sort?.map((item) => [item.key, item.value === 'desc' ? -1 : 1]) || [],
+			userId: user?.id || null,
 		});
 		return result;
 	}
 
 	@UsePipes(new ValidationPipe())
 	@Post('similar')
-	async getSimilarProducts(@Body() dto: GetSimilarDto) {
-		const result = await this.productService.getSimilarProducts(dto);
+	async getSimilarProducts(
+		@Body() dto: GetSimilarDto,
+		@Headers('Authorization') token: string | undefined,
+	) {
+		const user: IPayload | null = token
+			? this.userService.getUserByToken(token.split(' ')[1])
+			: null;
+
+		const result = await this.productService.getSimilarProducts(dto, user?.id || null);
 		return result;
 	}
 
 	@UsePipes(new ValidationPipe())
 	@Get('promotional')
-	async getPromotionalProducts(@Query() { limit }: GetPromotionalDto) {
+	async getPromotionalProducts(
+		@Query() { limit }: GetPromotionalDto,
+		@Headers('Authorization') token: string | undefined,
+	) {
+		const user: IPayload | null = token
+			? this.userService.getUserByToken(token.split(' ')[1])
+			: null;
+
 		const result = await this.productService.getProducts({
 			filter: Filter.Promotional,
+			userId: user?.id || null,
 			pagination: {
 				page: 0,
 				limit: limit || 50,
@@ -67,10 +98,18 @@ export class ProductController {
 
 	@UsePipes(new ValidationPipe({ transform: true }))
 	@Get('new')
-	async getNewProducts(@Query() { limit }: GetNewDto) {
+	async getNewProducts(
+		@Query() { limit }: GetNewDto,
+		@Headers('Authorization') token: string | undefined,
+	) {
+		const user: IPayload | null = token
+			? this.userService.getUserByToken(token.split(' ')[1])
+			: null;
+
 		const options: GetProductsOptions = {
 			filter: Filter.New,
 			sort: [['createdAt', 1]],
+			userId: user?.id || null,
 		};
 
 		if (typeof limit === 'number') {
@@ -86,10 +125,18 @@ export class ProductController {
 
 	@UsePipes(new ValidationPipe({ transform: true }))
 	@Get('popular')
-	async getPopularProducts(@Query() { limit }: GetPopularDto) {
+	async getPopularProducts(
+		@Query() { limit }: GetPopularDto,
+		@Headers('Authorization') token: string | undefined,
+	) {
+		const user: IPayload | null = token
+			? this.userService.getUserByToken(token.split(' ')[1])
+			: null;
+
 		const options: GetProductsOptions = {
 			filter: Filter.Popular,
 			sort: [['updatedAt', 1]],
+			userId: user?.id || null,
 		};
 
 		if (typeof limit === 'number') {
@@ -104,8 +151,15 @@ export class ProductController {
 	}
 
 	@Get(':id')
-	async getProduct(@Param('id') productId: string) {
-		const result = await this.productService.getProduct(productId);
+	async getProduct(
+		@Param('id') productId: string,
+		@Headers('Authorization') token: string | undefined,
+	) {
+		const user: IPayload | null = token
+			? this.userService.getUserByToken(token.split(' ')[1])
+			: null;
+
+		const result = await this.productService.getProduct(productId, user?.id || null);
 		if (!result) {
 			throw new HttpException(PRODUCT_NOT_FOUND, HttpStatus.NOT_FOUND);
 		}

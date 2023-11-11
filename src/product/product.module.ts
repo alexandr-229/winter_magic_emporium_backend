@@ -5,6 +5,8 @@ import { TypegooseModule } from 'nestjs-typegoose';
 import { ProductRepository } from './product.repository';
 import { ProductService } from './product.service';
 import { ProductCronService } from './product.cron.service';
+import { AuthModule } from 'src/account/auth/auth.module';
+import { UserModel } from 'src/account/user/models/user.model';
 
 @Module({
 	imports: [
@@ -15,7 +17,14 @@ import { ProductCronService } from './product.cron.service';
 					collection: 'Product',
 				},
 			},
+			{
+				typegooseClass: UserModel,
+				schemaOptions: {
+					collection: 'User',
+				},
+			},
 		]),
+		AuthModule,
 	],
 	controllers: [ProductController],
 	providers: [ProductRepository, ProductService, ProductCronService],
