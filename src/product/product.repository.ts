@@ -15,7 +15,9 @@ export class ProductRepository {
 	) {}
 
 	async getProducts(options: IGetProductsOptions) {
-		const skip = options.pagination ? options.pagination.page * options.pagination.limit : null;
+		const skip = options.pagination
+			? options.pagination?.page * options.pagination?.limit
+			: null;
 		const sortObject = (options.sort || []).reduce<{}>((acc, item) => {
 			acc[item[0]] = item[1];
 			return acc;
@@ -23,14 +25,14 @@ export class ProductRepository {
 		const sort = Object.keys(sortObject).length ? sortObject : { _id: 1 };
 
 		const total = await this.productModel.countDocuments({}).exec();
-		const pages = options.pagination ? Math.ceil(total / options.pagination.limit) : 1;
+		const pages = options.pagination ? Math.ceil(total / options.pagination?.limit) : 1;
 
 		const result = {
 			data: [],
 			pagination: {
 				total,
 				pages,
-				page: options.pagination ? options.pagination.page + 1 : 1,
+				page: options.pagination ? options.pagination?.page + 1 : 1,
 			},
 		};
 
@@ -40,7 +42,7 @@ export class ProductRepository {
 				.match(options.filters || {})
 				.sort(sort)
 				.skip(skip)
-				.limit(options.pagination?.limit || null)
+				.limit(options.pagination?.limit || 50)
 				.lookup({
 					from: 'User',
 					let: { user_id: options.userId },
