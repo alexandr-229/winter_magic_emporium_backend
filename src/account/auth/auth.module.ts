@@ -14,6 +14,7 @@ import { getJwtConfig } from 'src/configs/jwt.config';
 import { TokenService } from './token.service';
 import { JwtAuthStrategy } from './strategies/jwt.strategy';
 import { GoogleApiClient } from './google.api.client';
+import { SharableService } from './sharable.service';
 
 @Module({
 	imports: [
@@ -44,6 +45,8 @@ import { GoogleApiClient } from './google.api.client';
 		TokenService,
 		JwtAuthStrategy,
 		GoogleApiClient,
+		SharableService,
 	],
+	exports: [SharableService],
 })
 export class AuthModule {}

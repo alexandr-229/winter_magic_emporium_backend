@@ -1,30 +1,32 @@
 import { Injectable } from '@nestjs/common';
 import { ModelType } from '@typegoose/typegoose/lib/types';
+import { Types } from 'mongoose';
 import { InjectModel } from 'nestjs-typegoose';
+import { UserModel } from '../account/user/models/user.model';
 import { ProductModel } from './models/product.model';
 import { IProduct } from './types/product';
-import { IGetProductsOptions, SimilarOptions } from './types/repository';
+import { IGetProductsOptions } from './types/repository';
 
 @Injectable()
 export class ProductRepository {
 	constructor(
 		@InjectModel(ProductModel) private readonly productModel: ModelType<ProductModel>,
+		@InjectModel(UserModel) private readonly userModel: ModelType<UserModel>,
 	) {}
 
 	async getProducts(options: IGetProductsOptions) {
 		const skip = options.pagination ? options.pagination.page * options.pagination.limit : null;
-		const products = await this.productModel
-			.find(options.filters || {})
-			.sort(options.sort || [])
-			.skip(skip)
-			.limit(options.pagination?.limit || null)
-			.exec();
+		const sortObject = (options.sort || []).reduce<{}>((acc, item) => {
+			acc[item[0]] = item[1];
+			return acc;
+		}, {});
+		const sort = Object.keys(sortObject).length ? sortObject : { _id: 1 };
 
 		const total = await this.productModel.countDocuments({}).exec();
 		const pages = options.pagination ? Math.ceil(total / options.pagination.limit) : 1;
 
 		const result = {
-			data: products,
+			data: [],
 			pagination: {
 				total,
 				pages,
@@ -32,26 +34,76 @@ export class ProductRepository {
 			},
 		};
 
+		if (options.userId) {
+			result.data = await this.productModel
+				.aggregate()
+				.match(options.filters || {})
+				.sort(sort)
+				.skip(skip)
+				.limit(options.pagination?.limit || null)
+				.lookup({
+					from: 'User',
+					let: { user_id: options.userId },
+					as: 'favoritesProducts',
+					pipeline: [
+						{
+							$match: {
+								_id: new Types.ObjectId(options.userId),
+							},
+						},
+					],
+				})
+				.addFields({
+					favoritesProducts: {
+						$first: '$favoritesProducts.favorites',
+					},
+				})
+				.addFields({
+					isFavorite: {
+						$in: ['$_id', '$favoritesProducts'],
+					},
+				})
+				.project({
+					favoritesProducts: 0,
+				})
+				.exec();
+		} else {
+			result.data = await this.productModel
+				.aggregate()
+				.match(options.filters || {})
+				.match(options.filters || {})
+				.skip(skip)
+				.limit(options.pagination?.limit || null)
+				.addFields({
+					isFavorite: false,
+				})
+				.exec();
+		}
+
 		return result;
 	}
 
-	async getSimilarProducts(options: SimilarOptions) {
-		const result = await this.productModel
-			.find({
-				'size.value': { $lte: options.sortValueRange[1], $gte: options.sortValueRange[0] },
-				'size.unit': options.sortUnit,
-				price: { $lte: options.priceRange[1], $gte: options.priceRange[0] },
-			})
-			.skip(0)
-			.limit(options.limit)
-			.exec();
+	async getProductById(id: string, userId: string | null) {
+		const favorites: string[] = [];
 
-		return result;
-	}
+		if (userId) {
+			const user = await this.userModel.findById(userId);
 
-	async getProductById(id: string) {
-		const result = await this.productModel.findById(id).exec();
-		return result;
+			if (user) {
+				favorites.push(...user.favorites.map(String));
+			}
+		}
+
+		const product = await this.productModel.findById(id).exec();
+
+		if (!product) {
+			return null;
+		}
+
+		return {
+			...product.toJSON(),
+			isFavorite: favorites.includes(id),
+		};
 	}
 
 	async createProduct(product: Omit<IProduct, '_id' | 'new' | 'popular'>) {

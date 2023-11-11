@@ -24,7 +24,9 @@ export class ProductCronService {
 	@Cron('0 0 * * 4')
 	async setDiscounts() {
 		await this.productRepository.updateProducts({}, { discounts: 0, tag: Tag.Available });
-		const { data } = await this.productRepository.getProducts({});
+		const { data } = await this.productRepository.getProducts({
+			userId: null,
+		});
 		const indexes = this.getRandomIndexes(data.length);
 
 		const ids = data
@@ -49,7 +51,9 @@ export class ProductCronService {
 
 	async update(start: Partial<IProduct>, end: Partial<IProduct>) {
 		await this.productRepository.updateProducts({}, start);
-		const { data } = await this.productRepository.getProducts({});
+		const { data } = await this.productRepository.getProducts({
+			userId: null,
+		});
 		const indexes = this.getRandomIndexes(data.length);
 
 		const ids = data

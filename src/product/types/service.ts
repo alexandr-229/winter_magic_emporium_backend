@@ -15,6 +15,7 @@ export enum Filter {
 export interface GetProductsOptions {
 	filter: Filter;
 	sort?: [keyof IProduct, 1 | -1][];
+	userId: string | null;
 	pagination?: {
 		limit: number;
 		page: number;

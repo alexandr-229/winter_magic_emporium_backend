@@ -40,7 +40,7 @@ describe('Product service', () => {
 	});
 
 	it('getProducts', async () => {
-		const result = await productService.getProducts({ filter: Filter.All });
+		const result = await productService.getProducts({ filter: Filter.All, userId: null });
 
 		expect(getProducts).toHaveBeenCalledTimes(1);
 		expect(result).toEqual(productsMock);
@@ -54,27 +54,19 @@ describe('Product service', () => {
 			sizeValue: 10,
 		};
 
-		const expectedArgs = {
-			limit: dto.limit || 50,
-			priceRange: [5, 15],
-			sortValueRange: [5, 15],
-			sortUnit: dto.sizeUnit,
-		};
+		const result = await productService.getSimilarProducts(dto, null);
 
-		const result = await productService.getSimilarProducts(dto);
-
-		expect(getSimilarProducts).toHaveBeenCalledTimes(1);
-		expect(getSimilarProducts).toHaveBeenCalledWith(expectedArgs);
+		expect(getProducts).toHaveBeenCalledTimes(1);
 		expect(result).toEqual(productsMock);
 	});
 
 	it('getProduct', async () => {
 		const id = '1';
-		const result = await productService.getProduct(id);
+		const result = await productService.getProduct(id, null);
 
 		expect(result).toEqual(productMock);
 		expect(getProductById).toHaveBeenCalledTimes(1);
-		expect(getProductById).toHaveBeenCalledWith(id);
+		expect(getProductById).toHaveBeenCalledWith(id, null);
 	});
 
 	it('createProduct', async () => {
