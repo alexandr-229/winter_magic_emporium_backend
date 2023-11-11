@@ -90,7 +90,7 @@ export class ProductController {
 			userId: user?.id || null,
 			pagination: {
 				page: 0,
-				limit: limit || 50,
+				limit: +limit || 50,
 			},
 		});
 		return result;
@@ -137,14 +137,11 @@ export class ProductController {
 			filter: Filter.Popular,
 			sort: [['updatedAt', 1]],
 			userId: user?.id || null,
-		};
-
-		if (typeof limit === 'number') {
-			options.pagination = {
+			pagination: {
 				page: 0,
-				limit,
-			};
-		}
+				limit: +limit || 0,
+			},
+		};
 
 		const { data } = await this.productService.getProducts(options);
 		return data;
