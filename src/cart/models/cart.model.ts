@@ -1,10 +1,11 @@
 import { prop } from '@typegoose/typegoose';
 import { Base, TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
 import { Types } from 'mongoose';
+import { ProductModel } from '../../product/models/product.model';
 
 class Product {
-	@prop({ unique: true })
-	productId: Types.ObjectId;
+	@prop({ unique: true, ref: () => ProductModel })
+	product: Types.ObjectId;
 
 	@prop()
 	quantity: number;
