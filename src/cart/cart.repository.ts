@@ -9,7 +9,7 @@ export class CartRepository {
 	constructor(@InjectModel(CartModel) private readonly cartModel: ModelType<CartModel>) {}
 
 	async getCart(user: string) {
-		const result = await this.cartModel.findOne({ user }).exec();
+		const result = await this.cartModel.findOne({ user }).populate('products.product').exec();
 		return result;
 	}
 
@@ -22,9 +22,10 @@ export class CartRepository {
 		const result = await this.cartModel
 			.findOneAndUpdate(
 				{ user },
-				{ $push: { products: { productId: new Types.ObjectId(productId), quantity } } },
+				{ $push: { products: { product: new Types.ObjectId(productId), quantity } } },
 				{ new: true },
 			)
+			.populate('products.product')
 			.exec();
 		return result;
 	}
@@ -33,9 +34,10 @@ export class CartRepository {
 		const result = await this.cartModel
 			.findOneAndUpdate(
 				{ user },
-				{ $pull: { products: { productId: new Types.ObjectId(productId) } } },
+				{ $pull: { products: { product: new Types.ObjectId(productId) } } },
 				{ new: true },
 			)
+			.populate('products.product')
 			.exec();
 		return result;
 	}
@@ -45,13 +47,14 @@ export class CartRepository {
 			.findOneAndUpdate(
 				{
 					user,
-					products: { $elemMatch: { productId: new Types.ObjectId(productId) } },
+					products: { $elemMatch: { product: new Types.ObjectId(productId) } },
 				},
 				{
 					$set: { 'products.$.quantity': quantity },
 				},
 				{ new: true },
 			)
+			.populate('products.product')
 			.exec();
 		return result;
 	}
