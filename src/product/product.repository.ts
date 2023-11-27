@@ -74,8 +74,9 @@ export class ProductRepository {
 				.aggregate()
 				.match(options.filters || {})
 				.match(options.filters || {})
+				.sort(sort)
 				.skip(skip)
-				.limit(options.pagination?.limit || null)
+				.limit(options.pagination?.limit || 50)
 				.addFields({
 					isFavorite: false,
 				})
