@@ -1,16 +1,24 @@
-import { Body, Controller, HttpCode, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, HttpCode, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { SenderService } from 'src/sender/sender.service';
-import { PayDto } from './dto/pay.dto';
 import { MESSAGE } from './payment.const';
+import { PaymentService } from './payment.service';
+import { User } from 'src/decorators/user';
+import { IPayload } from 'src/account/auth/types/payload.interface';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('payment')
 export class PaymentController {
-	constructor(private readonly senderService: SenderService) {}
+	constructor(
+		private readonly senderService: SenderService,
+		private readonly paymentService: PaymentService,
+	) {}
 
+	@UseGuards(AuthGuard('jwt'))
 	@UsePipes(new ValidationPipe())
 	@HttpCode(200)
-	@Post('pay')
-	async pay(@Body() { email }: PayDto) {
+	@Get('pay')
+	async pay(@User() { email }: IPayload) {
+		await this.paymentService.addOrderToOrderHistory(email);
 		await this.senderService.sendMessage(MESSAGE, email);
 		return { message: 'OK' };
 	}
