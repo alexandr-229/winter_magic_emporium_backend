@@ -1,3 +1,4 @@
+import { SettingsModule } from './settings/settings.module';
 import { Module } from '@nestjs/common';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { ConfigModule } from '@nestjs/config';
@@ -13,6 +14,7 @@ import { SenderModule } from './sender/sender.module';
 
 @Module({
 	imports: [
+		SettingsModule,
 		ConfigModule.forRoot({
 			envFilePath: `.env.${process.env.NODE_ENV}`,
 		}),
