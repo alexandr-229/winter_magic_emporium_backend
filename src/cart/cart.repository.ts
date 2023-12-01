@@ -3,13 +3,17 @@ import { Injectable } from '@nestjs/common';
 import { ModelType } from '@typegoose/typegoose/lib/types';
 import { InjectModel } from 'nestjs-typegoose';
 import { CartModel } from './models/cart.model';
+import { ICart } from './types/cart';
 
 @Injectable()
 export class CartRepository {
 	constructor(@InjectModel(CartModel) private readonly cartModel: ModelType<CartModel>) {}
 
 	async getCart(user: string) {
-		const result = await this.cartModel.findOne({ user }).populate('products.product').exec();
+		const result: ICart = await this.cartModel
+			.findOne({ user })
+			.populate<{ products: ICart['products'] }>('products.product')
+			.exec();
 		return result;
 	}
 

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserModel } from './models/user.model';
+import { Order, UserModel } from './models/user.model';
 import { ModelType } from '@typegoose/typegoose/lib/types';
 import { InjectModel } from 'nestjs-typegoose';
 import { IUser } from './types/user';
@@ -67,5 +67,19 @@ export class UserRepository {
 		}
 		const history = await user.populate('orders.products');
 		return history.orders;
+	}
+
+	async saveOrder(email: string, order: Omit<Order, 'id' | '_id'>) {
+		const result = await this.userModel.findOneAndUpdate(
+			{ email },
+			{ $push: { orders: order } },
+			{ new: true },
+		);
+
+		if (!result) {
+			return null;
+		}
+
+		return result;
 	}
 }
