@@ -10,9 +10,7 @@ export class SettingsService {
 	@Cron('* * * * *')
 	async healthCheck() {
 		const backendUrl = `${this.configService.get('BACKEND_HOST')}/api/settings/health-check`;
-		const frontendUrl = this.configService.get('FRONTED_HOST');
 
 		await axios.get(backendUrl);
-		await axios.get(frontendUrl);
 	}
 }
