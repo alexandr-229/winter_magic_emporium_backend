@@ -4,6 +4,8 @@ import { FilesService } from './files.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { path } from 'app-root-path';
 
+console.log(path);
+
 @Module({
 	imports: [
 		ServeStaticModule.forRoot({
