@@ -6,7 +6,7 @@ async function bootstrap() {
 	process.env.NODE_OPTIONS = '--max-old-space-size=8192';
 
 	const app = await NestFactory.create(AppModule, {
-		cors: { origin: '*', credentials: true },
+		cors: { origin: 'https://quiet-cucurucho-df3fdc.netlify.app', credentials: true },
 	});
 	app.use(cookieParser());
 	app.setGlobalPrefix('api');
